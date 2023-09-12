@@ -9,5 +9,5 @@ def contador(pkt):
         print(count)
 
 sniffedPackets = sniff(count=10000, prn = contador)
-wrpcap("PacketsTomas-pocoUso.pcap", sniffedPackets)
+wrpcap("packets/PacketsTomas-stream.pcap", sniffedPackets)
 

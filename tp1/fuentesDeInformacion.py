@@ -1,9 +1,18 @@
 from scapy.all import *
 import math
+from mediciones import *
 
-path = './PacketsTomas.pcap'
+path = 'packets/PacketsTomas-stream.pcap'
 
 S1 = {}
+
+def calcularProbabilidades(S):
+    N = sum(S.values())
+    S2 = S.copy()
+    for key in S2:
+        S2[key] = round(S2[key]/N,5)
+        
+    return S2
 
 def mostrar_fuente(S):
     N = sum(S.values())
@@ -29,10 +38,28 @@ def entropia(fuente):
 
     return suma
 
-def informacionEvento(evento):
-    return -math.log2(evento)
+def informacionEvento(probabilidadEvento):
+    return -math.log2(probabilidadEvento)
+
+def informacionDeCadaSimbolo(fuente):
+    S = {}
+    for simbolo in fuente:
+        S[simbolo] = informacionEvento(fuente[simbolo])
+        
+    return S
 
 sniff(offline=path,prn=callback)
 packets = rdpcap(path)
-mostrar_fuente(S1)
-print('Entropia: ',entropia(S1))
+# mostrar_fuente(S1)
+S1Probabilidades = calcularProbabilidades(S1)
+S1Informacion = informacionDeCadaSimbolo(S1Probabilidades)
+S1Entropia = entropia(S1)
+
+
+print('Probabilidad de cada símbolo: ', S1Probabilidades)
+print('Unicast vs Broadcast: ',unicastVsBroadCast(packets))
+print('Porcentaje de cada Protocolo: ', porcentajeDeCadaProtocolo(packets))
+print('Entropía de la red: ', S1Entropia)
+informacionVsEntropia(S1Informacion,S1Entropia)
+
+# graficoBarras(S1Probabilidades,S1Informacion)
